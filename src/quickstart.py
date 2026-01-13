@@ -1,16 +1,36 @@
-# %% [markdown]
+#%% [markdown]
 # # LangGraph Quickstart with AI71 Foundry
 #
 # This notebook demonstrates the LangGraph quickstart example using AI71 Foundry
 # with Claude Sonnet 4.5 (via OpenAI-compatible API).
 
-# %% Setup - Load environment and imports
-import os
-from dotenv import load_dotenv
 
+
+print("1")
+
+
+# %%
+
+# %%
+
+# %%
+
+# %%
+
+#%% Setup - Load environment and imports
+import os
+
+from dotenv import load_dotenv
+#%%
 # Load environment variables from .env file
 load_dotenv()
 
+#%%
+import dotenv
+
+
+
+#%%
 # Verify environment is set up
 print(f"API Base: {os.getenv('OPENAI_API_BASE')}")
 print(f"API Key set: {'Yes' if os.getenv('OPENAI_API_KEY') else 'No'}")
@@ -23,6 +43,21 @@ from langchain_openai import ChatOpenAI
 from langgraph.graph import StateGraph, START, END
 from langgraph.graph.message import add_messages
 from langgraph.checkpoint.memory import MemorySaver
+# from langgraph import tool
+from langchain.tools import tool
+
+#%%
+
+model1=ChatOpenAI(
+    model="anthropic/claude-sonnet-4-5",  # Claude Sonnet 4.5 via Foundry
+    base_url=os.getenv("OPENAI_API_BASE"),
+    api_key=os.getenv("OPENAI_API_KEY")
+)
+
+model1.invoke([{"role":"user","content":"Hello!"}])
+#%%
+print(os.getenv("OPENAI_API_BASE"))
+print(os.getenv("OPENAI_API_KEY"))
 
 # %% Define the state schema
 # State holds the conversation messages
@@ -42,6 +77,7 @@ model = ChatOpenAI(
 print(f"Model initialized: {model.model_name}")
 
 # %% Define a simple tool
+# @tool
 def get_weather(city: str) -> str:
     """Get weather for a given city."""
     return f"It's always sunny in {city}!"
@@ -58,6 +94,8 @@ def chatbot(state: State):
 # %% Define tool execution node
 import json
 from langchain_core.messages import ToolMessage
+
+#%%
 
 def tool_node(state: State):
     """Execute tool calls from the model."""
@@ -85,11 +123,12 @@ def tool_node(state: State):
 def should_continue(state: State):
     """Determine whether to continue to tools or end."""
     messages = state["messages"]
+    # So this implicitly just checks the last message and figures out if there are any two calls in that last message. If there are, it means that they should be executed before the final response is created, and we are not at the final response yet. 
     last_message = messages[-1]
     # If the LLM makes a tool call, route to the "tools" node
     if last_message.tool_calls:
         return "tools"
-    # Otherwise, end the conversation
+    # Otherwise, end the conversation And assume that now, in the final state, we have the final response as the content of the last message. 
     return END
 
 # %% Build the graph
