@@ -1,0 +1,12 @@
+[project]
+name = "marimo-wolfram"
+version = "0.1.0"
+description = "Add your description here"
+requires-python = ">=3.12"
+dependencies = [
+    "jax>=0.10.0",
+    "marimo>=0.23.4",
+    "pydantic-ai>=1.89.0",
+    "sympy>=1.14.0",
+    "wolframclient>=1.4.0",
+]
